@@ -20,12 +20,19 @@ let taskFormHandler = (event) => {
 
   formEl.reset();
 
-  let taskDataObj = {
-    name: taskNameInput,
-    type: taskTypeInput
-  };
+  let isEdit = formEl.hasAttribute("data-task-id");
 
-  createTaskEl(taskDataObj);
+  if (isEdit) {
+    let taskId = formEl.getAttribute("data-task-id");
+    completeEditTask(taskNameInput, taskTypeInput, taskId);
+  } else {
+    let taskDataObj = {
+      name: taskNameInput,
+      type: taskTypeInput
+    };
+
+    createTaskEl(taskDataObj);
+  }
 };
 
 // y have 2 use both object in function and argument/parameter ?
@@ -113,6 +120,18 @@ let editTask = (taskId) => {
   document.querySelector("#save-task").textContent = "Save Task";
 
   formEl.setAttribute("data-task-id", taskId);
+};
+
+let completeEditTask = (taskName, taskType, taskId) => {
+  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  
+  taskSelected.querySelector("h3.task-name").textContent = taskName;
+  taskSelected.querySelector("span.task-type").textContent = taskType;
+
+  formEl.removeAttribute("data-task-id");
+  document.querySelector("#save-task").textContent = "Add Task";
+
+  alert("Task Updated!");
 };
 
 let deleteTask = (taskId) => {
