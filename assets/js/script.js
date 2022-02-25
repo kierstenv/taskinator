@@ -2,6 +2,7 @@ let taskIdCounter = 0;
 
 let formEl = document.querySelector("#task-form");
 let tasksToDoEl = document.querySelector("#tasks-to-do");
+let pageContentEl = document.querySelector("#page-content");
 
 // just so i can use it in function ?
 let taskFormHandler = (event) => {
@@ -88,3 +89,35 @@ let createTaskActions = (taskId) => {
 
 formEl.addEventListener("submit", taskFormHandler);
 
+let taskButtonHandler = (event) => {
+  let targetEl = event.target;
+
+  if (targetEl.matches(".edit-btn")) {
+    let taskId = targetEl.getAttribute("data-task-id");
+    editTask(taskId);
+  } else if (event.target.matches(".delete-btn")) {
+    // could i put this above if statement 2 DRY
+    let taskId = targetEl.getAttribute("data-task-id");
+    deleteTask(taskId);
+  }
+};
+
+let editTask = (taskId) => {
+  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  let taskName = taskSelected.querySelector("h3.task-name").textContent;
+  let taskType = taskSelected.querySelector("span.task-type").textContent;
+
+  document.querySelector("input[name='task-name']").value = taskName;
+  document.querySelector("select[name='task-type']").value = taskType;
+  document.querySelector("#save-task").textContent = "Save Task";
+
+  formEl.setAttribute("data-task-id", taskId);
+};
+
+let deleteTask = (taskId) => {
+  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  taskSelected.remove();
+};
+
+pageContentEl.addEventListener("click", taskButtonHandler);
