@@ -1,3 +1,5 @@
+let taskIdCounter = 0;
+
 let formEl = document.querySelector("#task-form");
 let tasksToDoEl = document.querySelector("#tasks-to-do");
 
@@ -30,14 +32,59 @@ let createTaskEl = (taskDataObj) => {
   let taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
   
+  taskItemEl.setAttribute("data-task-id", taskIdCounter);
+
   let taskInfoEl = document.createElement("div");
   taskInfoEl.className = "task-info";
   taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
   // HOW 2 PREVENT CROSS SITE SCRIPTIN G IM GONNA SCREAM
   taskItemEl.appendChild(taskInfoEl);
   
+  let taskActionsEl = createTaskActions(taskIdCounter)
+  taskItemEl.appendChild(taskActionsEl);
+
   tasksToDoEl.appendChild(taskItemEl);
+
+  taskIdCounter++;
 };
+
+let createTaskActions = (taskId) => {
+  let actionContainerEl = document.createElement("div");
+  actionContainerEl.className = "task-actions";
+
+  let editButtonEl = document.createElement("button");
+  editButtonEl.textContent = "Edit";
+  editButtonEl.className = "btn edit-btn";
+  editButtonEl.setAttribute("data-task-id", taskId);
+
+  actionContainerEl.appendChild(editButtonEl);
+  
+  let deleteButtonEl = document.createElement("button");
+  deleteButtonEl.textContent = "Delete";
+  deleteButtonEl.className = "btn delete-btn";
+  deleteButtonEl.setAttribute("data-task-id", taskId);
+
+  actionContainerEl.appendChild(deleteButtonEl);
+
+  let statusSelectEl = document.createElement("select");
+  statusSelectEl.className = "select-status";
+  statusSelectEl.setAttribute("name", "status-change");
+  statusSelectEl.setAttribute("data-task-id", taskId);
+
+  actionContainerEl.appendChild(statusSelectEl);
+
+  let statusChoices = ["To Do", "In Progress", "Completed"];
+
+  statusChoices.forEach(choice => {
+    let statusOptionEl = document.createElement("option");
+    statusOptionEl.textContent = choice;
+    statusOptionEl.setAttribute("value", choice);
+
+    statusSelectEl.appendChild(statusOptionEl);
+  });
+
+  return actionContainerEl;
+}
 
 formEl.addEventListener("submit", taskFormHandler);
 
