@@ -9,3 +9,4 @@ let createTaskHandler = () => {
 };
 
 buttonEl.addEventListener("click", createTaskHandler);
+
