@@ -1,8 +1,10 @@
 let taskIdCounter = 0;
 
 let formEl = document.querySelector("#task-form");
-let tasksToDoEl = document.querySelector("#tasks-to-do");
 let pageContentEl = document.querySelector("#page-content");
+let tasksToDoEl = document.querySelector("#tasks-to-do");
+let tasksInProgressEl = document.querySelector("#tasks-in-progress");
+let tasksCompletedEl = document.querySelector("#tasks-completed");
 
 // just so i can use it in function ?
 let taskFormHandler = (event) => {
@@ -139,4 +141,22 @@ let deleteTask = (taskId) => {
   taskSelected.remove();
 };
 
+let taskStatusChangeHandler = (event) => {
+  let taskId = event.target.getAttribute("data-task-id");
+
+  let statusValue = event.target.value.toLowerCase();
+
+  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  if (statusValue === "to do") {
+    tasksToDoEl.appendChild(taskSelected);
+  } else if (statusValue === "in progress") {
+    tasksInProgressEl.appendChild(taskSelected);
+  } else if (statusValue === "completed") {
+    tasksCompletedEl.appendChild(taskSelected);
+  }
+};
+
 pageContentEl.addEventListener("click", taskButtonHandler);
+
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
