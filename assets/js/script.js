@@ -6,6 +6,10 @@ let tasksToDoEl = document.querySelector("#tasks-to-do");
 let tasksInProgressEl = document.querySelector("#tasks-in-progress");
 let tasksCompletedEl = document.querySelector("#tasks-completed");
 
+let tasks = [
+  
+];
+
 // just so i can use it in function ?
 let taskFormHandler = (event) => {
   event.preventDefault();
@@ -16,9 +20,6 @@ let taskFormHandler = (event) => {
     alert("You need to fill out the task form!");
     return false;
   }
-  //after return it just goes back 2 addEventListener(submit, taskFormHandler)
-  // - like the caller function is false so it stops ???
-  // then regoes bc its the only call rn ????
 
   formEl.reset();
 
@@ -30,7 +31,9 @@ let taskFormHandler = (event) => {
   } else {
     let taskDataObj = {
       name: taskNameInput,
-      type: taskTypeInput
+      type: taskTypeInput,
+      status: "to do",
+      id: taskIdCounter
     };
 
     createTaskEl(taskDataObj);
@@ -55,6 +58,10 @@ let createTaskEl = (taskDataObj) => {
 
   tasksToDoEl.appendChild(taskItemEl);
 
+  taskDataObj.id = taskIdCounter;
+
+  tasks.push(taskDataObj);
+  
   taskIdCounter++;
 };
 
@@ -94,7 +101,7 @@ let createTaskActions = (taskId) => {
   });
 
   return actionContainerEl;
-}
+};
 
 formEl.addEventListener("submit", taskFormHandler);
 
@@ -130,6 +137,13 @@ let completeEditTask = (taskName, taskType, taskId) => {
   taskSelected.querySelector("h3.task-name").textContent = taskName;
   taskSelected.querySelector("span.task-type").textContent = taskType;
 
+  tasks.forEach(task => {
+    if (task.id === parseInt(taskId)) {
+      task.name = taskName;
+      task.type = taskType;
+    }
+  });
+  
   formEl.removeAttribute("data-task-id");
   document.querySelector("#save-task").textContent = "Add Task";
 
@@ -139,6 +153,16 @@ let completeEditTask = (taskName, taskType, taskId) => {
 let deleteTask = (taskId) => {
   let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   taskSelected.remove();
+
+  let updatedTaskArr = [];
+
+  tasks.forEach(task => {
+    if (task.id !== parseInt(taskId)) {
+      updatedTaskArr.push(tasks);
+    }
+  });
+
+  tasks = updatedTaskArr;
 };
 
 let taskStatusChangeHandler = (event) => {
@@ -155,6 +179,12 @@ let taskStatusChangeHandler = (event) => {
   } else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
   }
+
+  tasks.forEach(task => {
+    if (task.id === parseInt(taskId)) {
+      task.status = statusValue;
+    }
+  });
 };
 
 pageContentEl.addEventListener("click", taskButtonHandler);
