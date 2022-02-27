@@ -1,20 +1,20 @@
 let taskIdCounter = 0;
 
-let formEl = document.querySelector("#task-form");
-let pageContentEl = document.querySelector("#page-content");
-let tasksToDoEl = document.querySelector("#tasks-to-do");
-let tasksInProgressEl = document.querySelector("#tasks-in-progress");
-let tasksCompletedEl = document.querySelector("#tasks-completed");
+const formEl = document.querySelector("#task-form");
+const pageContentEl = document.querySelector("#page-content");
+const tasksToDoEl = document.querySelector("#tasks-to-do");
+const tasksInProgressEl = document.querySelector("#tasks-in-progress");
+const tasksCompletedEl = document.querySelector("#tasks-completed");
 
 let tasks = [
   
 ];
 
 // just so i can use it in function ?
-let taskFormHandler = (event) => {
+const taskFormHandler = (event) => {
   event.preventDefault();
-  let taskNameInput = document.querySelector("input[name='task-name']").value;
-  let taskTypeInput = document.querySelector("select[name='task-type']").value;
+  const taskNameInput = document.querySelector("input[name='task-name']").value;
+  const taskTypeInput = document.querySelector("select[name='task-type']").value;
 
   if (!taskNameInput || !taskTypeInput) {
     alert("You need to fill out the task form!");
@@ -23,13 +23,13 @@ let taskFormHandler = (event) => {
 
   formEl.reset();
 
-  let isEdit = formEl.hasAttribute("data-task-id");
+  const isEdit = formEl.hasAttribute("data-task-id");
 
   if (isEdit) {
-    let taskId = formEl.getAttribute("data-task-id");
+    const taskId = formEl.getAttribute("data-task-id");
     completeEditTask(taskNameInput, taskTypeInput, taskId);
   } else {
-    let taskDataObj = {
+    const taskDataObj = {
       name: taskNameInput,
       type: taskTypeInput,
       status: "to do",
@@ -41,19 +41,19 @@ let taskFormHandler = (event) => {
 };
 
 // y have 2 use both object in function and argument/parameter ?
-let createTaskEl = (taskDataObj) => {
-  let taskItemEl = document.createElement("li");
+const createTaskEl = (taskDataObj) => {
+  const taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
   
   taskItemEl.setAttribute("data-task-id", taskIdCounter);
 
-  let taskInfoEl = document.createElement("div");
+  const taskInfoEl = document.createElement("div");
   taskInfoEl.className = "task-info";
   taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
   // HOW 2 PREVENT CROSS SITE SCRIPTIN G IM GONNA SCREAM
   taskItemEl.appendChild(taskInfoEl);
   
-  let taskActionsEl = createTaskActions(taskIdCounter)
+  const taskActionsEl = createTaskActions(taskIdCounter)
   taskItemEl.appendChild(taskActionsEl);
 
   tasksToDoEl.appendChild(taskItemEl);
@@ -63,37 +63,39 @@ let createTaskEl = (taskDataObj) => {
   tasks.push(taskDataObj);
   
   taskIdCounter++;
+  
+  saveTasks();
 };
 
-let createTaskActions = (taskId) => {
-  let actionContainerEl = document.createElement("div");
+const createTaskActions = (taskId) => {
+  const actionContainerEl = document.createElement("div");
   actionContainerEl.className = "task-actions";
 
-  let editButtonEl = document.createElement("button");
+  const editButtonEl = document.createElement("button");
   editButtonEl.textContent = "Edit";
   editButtonEl.className = "btn edit-btn";
   editButtonEl.setAttribute("data-task-id", taskId);
 
   actionContainerEl.appendChild(editButtonEl);
   
-  let deleteButtonEl = document.createElement("button");
+  const deleteButtonEl = document.createElement("button");
   deleteButtonEl.textContent = "Delete";
   deleteButtonEl.className = "btn delete-btn";
   deleteButtonEl.setAttribute("data-task-id", taskId);
 
   actionContainerEl.appendChild(deleteButtonEl);
 
-  let statusSelectEl = document.createElement("select");
+  const statusSelectEl = document.createElement("select");
   statusSelectEl.className = "select-status";
   statusSelectEl.setAttribute("name", "status-change");
   statusSelectEl.setAttribute("data-task-id", taskId);
 
   actionContainerEl.appendChild(statusSelectEl);
 
-  let statusChoices = ["To Do", "In Progress", "Completed"];
+  const statusChoices = ["To Do", "In Progress", "Completed"];
 
   statusChoices.forEach(choice => {
-    let statusOptionEl = document.createElement("option");
+    const statusOptionEl = document.createElement("option");
     statusOptionEl.textContent = choice;
     statusOptionEl.setAttribute("value", choice);
 
@@ -103,40 +105,12 @@ let createTaskActions = (taskId) => {
   return actionContainerEl;
 };
 
-formEl.addEventListener("submit", taskFormHandler);
-
-let taskButtonHandler = (event) => {
-  let targetEl = event.target;
-
-  if (targetEl.matches(".edit-btn")) {
-    let taskId = targetEl.getAttribute("data-task-id");
-    editTask(taskId);
-  } else if (event.target.matches(".delete-btn")) {
-    // could i put this above if statement 2 DRY
-    let taskId = targetEl.getAttribute("data-task-id");
-    deleteTask(taskId);
-  }
-};
-
-let editTask = (taskId) => {
-  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
-
-  let taskName = taskSelected.querySelector("h3.task-name").textContent;
-  let taskType = taskSelected.querySelector("span.task-type").textContent;
-
-  document.querySelector("input[name='task-name']").value = taskName;
-  document.querySelector("select[name='task-type']").value = taskType;
-  document.querySelector("#save-task").textContent = "Save Task";
-
-  formEl.setAttribute("data-task-id", taskId);
-};
-
-let completeEditTask = (taskName, taskType, taskId) => {
-  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+const completeEditTask = (taskName, taskType, taskId) => {
+  const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   
   taskSelected.querySelector("h3.task-name").textContent = taskName;
   taskSelected.querySelector("span.task-type").textContent = taskType;
-
+  
   tasks.forEach(task => {
     if (task.id === parseInt(taskId)) {
       task.name = taskName;
@@ -146,32 +120,32 @@ let completeEditTask = (taskName, taskType, taskId) => {
   
   formEl.removeAttribute("data-task-id");
   document.querySelector("#save-task").textContent = "Add Task";
-
+  
   alert("Task Updated!");
+
+  saveTasks();
 };
 
-let deleteTask = (taskId) => {
-  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
-  taskSelected.remove();
-
-  let updatedTaskArr = [];
-
-  tasks.forEach(task => {
-    if (task.id !== parseInt(taskId)) {
-      updatedTaskArr.push(tasks);
-    }
-  });
-
-  tasks = updatedTaskArr;
+const taskButtonHandler = (event) => {
+  const targetEl = event.target;
+  
+  if (targetEl.matches(".edit-btn")) {
+    const taskId = targetEl.getAttribute("data-task-id");
+    editTask(taskId);
+  } else if (event.target.matches(".delete-btn")) {
+    // could i put this above if statement 2 DRY
+    const taskId = targetEl.getAttribute("data-task-id");
+    deleteTask(taskId);
+  }
 };
 
-let taskStatusChangeHandler = (event) => {
-  let taskId = event.target.getAttribute("data-task-id");
-
-  let statusValue = event.target.value.toLowerCase();
-
-  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
-
+const taskStatusChangeHandler = (event) => {
+  const taskId = event.target.getAttribute("data-task-id");
+  
+  const statusValue = event.target.value.toLowerCase();
+  
+  const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  
   if (statusValue === "to do") {
     tasksToDoEl.appendChild(taskSelected);
   } else if (statusValue === "in progress") {
@@ -179,13 +153,51 @@ let taskStatusChangeHandler = (event) => {
   } else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
   }
-
+  
   tasks.forEach(task => {
     if (task.id === parseInt(taskId)) {
       task.status = statusValue;
     }
   });
+
+  saveTasks();
 };
+
+const editTask = (taskId) => {
+  const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  
+  const taskName = taskSelected.querySelector("h3.task-name").textContent;
+  const taskType = taskSelected.querySelector("span.task-type").textContent;
+  
+  document.querySelector("input[name='task-name']").value = taskName;
+  document.querySelector("select[name='task-type']").value = taskType;
+  document.querySelector("#save-task").textContent = "Save Task";
+  
+  formEl.setAttribute("data-task-id", taskId);
+};
+
+const deleteTask = (taskId) => {
+  const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  taskSelected.remove();
+  
+  let updatedTaskArr = [];
+  
+  tasks.forEach(task => {
+    if (task.id !== parseInt(taskId)) {
+      updatedTaskArr.push(tasks);
+    }
+  });
+  
+  tasks = updatedTaskArr;
+
+  saveTasks();
+};
+
+const saveTasks = () => {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+formEl.addEventListener("submit", taskFormHandler);
 
 pageContentEl.addEventListener("click", taskButtonHandler);
 
