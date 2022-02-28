@@ -6,9 +6,7 @@ const tasksToDoEl = document.querySelector("#tasks-to-do");
 const tasksInProgressEl = document.querySelector("#tasks-in-progress");
 const tasksCompletedEl = document.querySelector("#tasks-completed");
 
-let tasks = [
-  
-];
+let tasks = [];
 
 // just so i can use it in function ?
 const taskFormHandler = (event) => {
@@ -44,7 +42,6 @@ const taskFormHandler = (event) => {
 const createTaskEl = (taskDataObj) => {
   let taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
-  
   taskItemEl.setAttribute("data-task-id", taskIdCounter);
 
   let taskInfoEl = document.createElement("div");
@@ -56,7 +53,21 @@ const createTaskEl = (taskDataObj) => {
   let taskActionsEl = createTaskActions(taskIdCounter);
   taskItemEl.appendChild(taskActionsEl);
 
-  tasksToDoEl.appendChild(taskItemEl);
+  switch (taskDataObj.status) {
+    case "to do":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
+      tasksToDoEl.append(taskItemEl);
+      break;
+    case "in progress":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
+      tasksInProgressEl.append(taskItemEl);
+      break;
+    case "completed":
+      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
+      tasksCompletedEl.append(taskItemEl);
+      break;
+    default:
+  }
 
   taskDataObj.id = taskIdCounter;
 
@@ -67,7 +78,7 @@ const createTaskEl = (taskDataObj) => {
   saveTasks();
 };
 
-let createTaskActions = (taskId) => {
+const createTaskActions = (taskId) => {
   const actionContainerEl = document.createElement("div");
   actionContainerEl.className = "task-actions";
 
@@ -75,29 +86,26 @@ let createTaskActions = (taskId) => {
   editButtonEl.textContent = "Edit";
   editButtonEl.className = "btn edit-btn";
   editButtonEl.setAttribute("data-task-id", taskId);
-
   actionContainerEl.appendChild(editButtonEl);
   
   const deleteButtonEl = document.createElement("button");
   deleteButtonEl.textContent = "Delete";
   deleteButtonEl.className = "btn delete-btn";
   deleteButtonEl.setAttribute("data-task-id", taskId);
-
   actionContainerEl.appendChild(deleteButtonEl);
 
   const statusSelectEl = document.createElement("select");
   statusSelectEl.className = "select-status";
   statusSelectEl.setAttribute("name", "status-change");
   statusSelectEl.setAttribute("data-task-id", taskId);
-
   actionContainerEl.appendChild(statusSelectEl);
 
   const statusChoices = ["To Do", "In Progress", "Completed"];
 
   statusChoices.forEach(choice => {
     const statusOptionEl = document.createElement("option");
-    statusOptionEl.textContent = choice;
     statusOptionEl.setAttribute("value", choice);
+    statusOptionEl.textContent = choice;
 
     statusSelectEl.appendChild(statusOptionEl);
   });
@@ -105,7 +113,7 @@ let createTaskActions = (taskId) => {
   return actionContainerEl;
 };
 
-let completeEditTask = (taskName, taskType, taskId) => {
+const completeEditTask = (taskName, taskType, taskId) => {
   let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   
   taskSelected.querySelector("h3.task-name").textContent = taskName;
@@ -132,7 +140,7 @@ const taskButtonHandler = (event) => {
   if (targetEl.matches(".edit-btn")) {
     const taskId = targetEl.getAttribute("data-task-id");
     editTask(taskId);
-  } else if (event.target.matches(".delete-btn")) {
+  } else if (targetEl.matches(".delete-btn")) {
     // could i put this above if statement 2 DRY
     const taskId = targetEl.getAttribute("data-task-id");
     deleteTask(taskId);
@@ -142,9 +150,9 @@ const taskButtonHandler = (event) => {
 const taskStatusChangeHandler = (event) => {
   const taskId = event.target.getAttribute("data-task-id");
   
-  const statusValue = event.target.value.toLowerCase();
-  
   const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  
+  const statusValue = event.target.value.toLowerCase();
   
   if (statusValue === "to do") {
     tasksToDoEl.appendChild(taskSelected);
@@ -184,7 +192,7 @@ const deleteTask = (taskId) => {
   
   tasks.forEach(task => {
     if (task.id !== parseInt(taskId)) {
-      updatedTaskArr.push(tasks);
+      updatedTaskArr.push(task);
     }
   });
   
@@ -199,48 +207,16 @@ const saveTasks = () => {
 
 // Iterates through a tasks array and creates task elements on the page from it.
 const loadTasks = () => {
-  tasks = localStorage.getItem("tasks");
+  let savedTasks = localStorage.getItem("tasks");
   
-  if (tasks === null) {
-    tasks = [];
-  
+  if (savedTasks === null) {
     return false;
   }
 
-  tasks = JSON.parse(tasks);
+  savedTasks = JSON.parse(savedTasks);
 
-  tasks.forEach(task => {
-    task.id = taskIdCounter;
-
-    let taskItemEl = document.createElement("li");
-    taskItemEl.className = "task-item";
-    taskItemEl.setAttribute("data-task-id", task.id);
-
-    let taskInfoEl = document.createElement("div");
-    taskInfoEl.className = "task-info";
-    taskInfoEl.innerHTML = "<h3 class='task-name'>" + task.name + "</h3><span class='task-type'>" + task.type + "</span>";
-
-    taskItemEl.appendChild(taskInfoEl);
-
-    let taskActionsEl = createTaskActions(task.id);
-
-    taskItemEl.appendChild(taskActionsEl);
-
-    if (task.status === "to do") {
-      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
-
-      tasksToDoEl.appendChild(taskItemEl);
-    } else if (task.status === "in progress") {
-      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
-
-      tasksInProgressEl.appendChild(taskItemEl);
-    } else if (task.status === "completed") {
-      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
-
-      tasksCompletedEl.appendChild(taskItemEl);
-    }
-
-    taskIdCounter++;
+  savedTasks.forEach(task => {
+    createTaskEl(task);
   });
 };
 
