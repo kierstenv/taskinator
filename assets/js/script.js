@@ -8,7 +8,6 @@ const tasksCompletedEl = document.querySelector("#tasks-completed");
 
 let tasks = [];
 
-// just so i can use it in function ?
 const taskFormHandler = (event) => {
   event.preventDefault();
   const taskNameInput = document.querySelector("input[name='task-name']").value;
@@ -38,7 +37,6 @@ const taskFormHandler = (event) => {
   }
 };
 
-// y have 2 use both object in function and argument/parameter ?
 const createTaskEl = (taskDataObj) => {
   let taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
@@ -141,7 +139,6 @@ const taskButtonHandler = (event) => {
     const taskId = targetEl.getAttribute("data-task-id");
     editTask(taskId);
   } else if (targetEl.matches(".delete-btn")) {
-    // could i put this above if statement 2 DRY
     const taskId = targetEl.getAttribute("data-task-id");
     deleteTask(taskId);
   }
@@ -205,7 +202,6 @@ const saveTasks = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
-// Iterates through a tasks array and creates task elements on the page from it.
 const loadTasks = () => {
   let savedTasks = localStorage.getItem("tasks");
   
