@@ -42,18 +42,18 @@ const taskFormHandler = (event) => {
 
 // y have 2 use both object in function and argument/parameter ?
 const createTaskEl = (taskDataObj) => {
-  const taskItemEl = document.createElement("li");
+  let taskItemEl = document.createElement("li");
   taskItemEl.className = "task-item";
   
   taskItemEl.setAttribute("data-task-id", taskIdCounter);
 
-  const taskInfoEl = document.createElement("div");
+  let taskInfoEl = document.createElement("div");
   taskInfoEl.className = "task-info";
   taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
   // HOW 2 PREVENT CROSS SITE SCRIPTIN G IM GONNA SCREAM
   taskItemEl.appendChild(taskInfoEl);
   
-  const taskActionsEl = createTaskActions(taskIdCounter)
+  let taskActionsEl = createTaskActions(taskIdCounter);
   taskItemEl.appendChild(taskActionsEl);
 
   tasksToDoEl.appendChild(taskItemEl);
@@ -67,7 +67,7 @@ const createTaskEl = (taskDataObj) => {
   saveTasks();
 };
 
-const createTaskActions = (taskId) => {
+let createTaskActions = (taskId) => {
   const actionContainerEl = document.createElement("div");
   actionContainerEl.className = "task-actions";
 
@@ -105,8 +105,8 @@ const createTaskActions = (taskId) => {
   return actionContainerEl;
 };
 
-const completeEditTask = (taskName, taskType, taskId) => {
-  const taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+let completeEditTask = (taskName, taskType, taskId) => {
+  let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   
   taskSelected.querySelector("h3.task-name").textContent = taskName;
   taskSelected.querySelector("span.task-type").textContent = taskType;
@@ -197,8 +197,57 @@ const saveTasks = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+// Iterates through a tasks array and creates task elements on the page from it.
+const loadTasks = () => {
+  tasks = localStorage.getItem("tasks");
+  
+  if (tasks === null) {
+    tasks = [];
+  
+    return false;
+  }
+
+  tasks = JSON.parse(tasks);
+
+  tasks.forEach(task => {
+    task.id = taskIdCounter;
+
+    let taskItemEl = document.createElement("li");
+    taskItemEl.className = "task-item";
+    taskItemEl.setAttribute("data-task-id", task.id);
+
+    let taskInfoEl = document.createElement("div");
+    taskInfoEl.className = "task-info";
+    taskInfoEl.innerHTML = "<h3 class='task-name'>" + task.name + "</h3><span class='task-type'>" + task.type + "</span>";
+
+    taskItemEl.appendChild(taskInfoEl);
+
+    let taskActionsEl = createTaskActions(task.id);
+
+    taskItemEl.appendChild(taskActionsEl);
+
+    if (task.status === "to do") {
+      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+
+      tasksToDoEl.appendChild(taskItemEl);
+    } else if (task.status === "in progress") {
+      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+
+      tasksInProgressEl.appendChild(taskItemEl);
+    } else if (task.status === "completed") {
+      taskItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+
+      tasksCompletedEl.appendChild(taskItemEl);
+    }
+
+    taskIdCounter++;
+  });
+};
+
 formEl.addEventListener("submit", taskFormHandler);
 
 pageContentEl.addEventListener("click", taskButtonHandler);
 
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
+
+loadTasks();
